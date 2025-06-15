@@ -1,0 +1,76 @@
+// ==UserScript==
+// @name         Asystent Zbieracza - Naprawiony
+// @namespace    http://tampermonkey.net/
+// @version      2025-05-04
+// @description  Automatyczne ładowanie Asystenta Zbieracza z poprawnymi ustawieniami globalnymi
+// @author       You
+// @match        https://*.plemiona.pl/*
+// @grant        none
+// ==/UserScript==
+
+// Ustawienia globalne – muszą być dostępne dla Asystent_Zbieracza.js
+window.settings = {
+    max_ressources: '99999',
+    archers: '0',
+    skip_level_1: '0'
+};
+
+window.settings_spear = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+window.settings_sword = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+window.settings_axe = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+window.settings_archer = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+window.settings_light = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+window.settings_marcher = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+window.settings_heavy = {
+    untouchable: '0',
+    max_unit_number: '9999',
+    conditional_safeguard: '0'
+};
+
+// Teraz bezpieczne ładowanie zewnętrznego skryptu tylko na stronie z URL kończącym się na &mode=scavenge
+(function() {
+    'use strict';
+    if (window.location.href.endsWith('&mode=scavenge')) {
+        const script = document.createElement('script');
+        script.src = 'https://media.innogamescdn.com/com_DS_PL/skrypty/Asystent_Zbieracza.js';
+        script.onload = () => {
+            console.log("✅ Asystent Zbieracza załadowany.");
+        };
+        script.onerror = () => {
+            console.error("❌ Błąd ładowania Asystenta Zbieracza.");
+        };
+        document.body.appendChild(script);
+    } else {
+        console.log("Strona nie kończy się na &mode=scavenge, skrypt nie zostanie załadowany.");
+    }
+})();
