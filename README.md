@@ -1,18 +1,6 @@
 # F students are Inventors
 
----
 
-## Opis projektu
-
-Tutaj możesz dodać krótki opis swojego projektu, jego cel oraz funkcjonalności.
-
----
-
-## Instalacja i użycie
-
-Aby korzystać ze skryptu, potrzebujesz rozszerzenia Tampermonkey, które pozwala na łatwe zarządzanie skryptami użytkownika w przeglądarce.
-
----
 
 ## Jak zainstalować Tampermonkey i dodać skrypt
 
