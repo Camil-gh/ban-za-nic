@@ -1,0 +1,54 @@
+// ==UserScript==
+// @name         Plemiona Village Collector (Debug)
+// @namespace    http://tampermonkey.net/
+// @version      1.1
+// @description  Debug wersja - zbiera ID wiosek z URL-i i loguje szczegóły działania
+// @author       Ty
+// @match        https://*.plemiona.pl/game.php*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    console.log("[VillageCollector] Skrypt uruchomiony!");
+
+    function getVillageId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("village");
+        console.log("[VillageCollector] villageId z URL-a:", id);
+        return id;
+    }
+
+    function loadVillageList() {
+        const stored = localStorage.getItem("villageList");
+        if (stored) {
+            console.log("[VillageCollector] Znaleziono zapisane villageList.");
+            return JSON.parse(stored);
+        } else {
+            console.log("[VillageCollector] Nie znaleziono villageList, tworzę nową tablicę.");
+            return [];
+        }
+    }
+
+    function saveVillageList(list) {
+        localStorage.setItem("villageList", JSON.stringify(list));
+        console.log("[VillageCollector] Zapisano villageList:", list);
+    }
+
+    const villageId = getVillageId();
+
+    if (villageId) {
+        let villageList = loadVillageList();
+
+        if (!villageList.includes(villageId)) {
+            villageList.push(villageId);
+            saveVillageList(villageList);
+            console.log("[VillageCollector] Dodano nowy ID wioski:", villageId);
+        } else {
+            console.log("[VillageCollector] ID wioski już istnieje:", villageId);
+        }
+    } else {
+        console.warn("[VillageCollector] Nie znaleziono parametru 'village' w URL-u.");
+    }
+})();
