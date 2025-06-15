@@ -1,0 +1,85 @@
+// ==UserScript==
+// @name         Plemiona: Nawigacja między wioskami 
+// @namespace    http://tampermonkey.net/
+// @version      1.3
+// @description  Dodaje przyciski do zmiany wioski z możliwością przejścia od ostatniej do pierwszej i odwrotnie
+// @author       Ty
+// @match        https://*.plemiona.pl/game.php*
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    function getVillageId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get("village");
+    }
+
+    function loadVillageList() {
+        const stored = localStorage.getItem("villageList");
+        return stored ? JSON.parse(stored) : [];
+    }
+
+    function goToVillage(id) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set("village", id);
+        window.location.search = urlParams.toString();
+    }
+
+    function insertButtonsInline() {
+        const container = document.querySelector("#menu_row2_village");
+        if (!container) return;
+
+        const link = container.querySelector("a");
+        if (!link) return;
+
+        const villageList = loadVillageList();
+        const currentVillageId = getVillageId();
+        const currentIndex = villageList.indexOf(currentVillageId);
+
+        // Styl przycisków
+        const buttonStyle = `
+            display: inline-block;
+            margin-right: 4px;
+            padding: 1px 4px;
+            font-size: 11px;
+            cursor: pointer;
+            background: #ececec;
+            border: 1px solid #999;
+            border-radius: 3px;
+        `;
+
+        const wrapper = document.createElement("span");
+
+        const prevBtn = document.createElement("span");
+        prevBtn.innerText = "←";
+        prevBtn.setAttribute("style", buttonStyle);
+        prevBtn.title = "Poprzednia wioska";
+        prevBtn.onclick = () => {
+            if (currentIndex > 0) {
+                goToVillage(villageList[currentIndex - 1]);
+            } else {
+                goToVillage(villageList[villageList.length - 1]);
+            }
+        };
+
+        const nextBtn = document.createElement("span");
+        nextBtn.innerText = "→";
+        nextBtn.setAttribute("style", buttonStyle);
+        nextBtn.title = "Następna wioska";
+        nextBtn.onclick = () => {
+            if (currentIndex < villageList.length - 1) {
+                goToVillage(villageList[currentIndex + 1]);
+            } else {
+                goToVillage(villageList[0]);
+            }
+        };
+
+        wrapper.appendChild(prevBtn);
+        wrapper.appendChild(nextBtn);
+        container.insertBefore(wrapper, link);
+    }
+
+    insertButtonsInline();
+})();
