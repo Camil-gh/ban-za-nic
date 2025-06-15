@@ -1,4 +1,4 @@
-# F students are Inventors
+# *F students are Inventors* 🚀
 
 
 
@@ -22,8 +22,5 @@
 
 ---
 
-Jeśli masz pytania, śmiało twórz issue lub kontaktuj się ze mną!
 
----
-
-*F students are Inventors* 🚀
+# *F students are Inventors* 🚀
