@@ -10,7 +10,8 @@
 
 // Ustawienia globalne – muszą być dostępne dla Asystent_Zbieracza.js
 window.settings = {
-    max_ressources: '99999',
+    // 9600 to jakieś 7h52minuty jak coś
+    max_ressources: '9600',
     archers: '0',
     skip_level_1: '0'
 };
