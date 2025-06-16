@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         AutoBudynki Tribal Wars (pełna kontrola)
+// @name         AutoBudynki Tribal Wars (priorytet surowców)
 // @namespace    http://tampermonkey.net/
-// @version      1.2
-// @description  Ulepszanie budynków tylko jeśli są środki, miejsce w kolejce i nie przekroczono poziomu docelowego
+// @version      1.3
+// @description  Ulepszanie budynków z priorytetem na surowce (wood/stone/iron)
 // @author       ChatGPT
 // @match        *://*.plemiona.pl/game.php*screen=main*
 // @grant        none
@@ -31,48 +31,60 @@
         hide: 10,
         wall: 20
     };
-    // 🛑 Jeśli kolejka jest pełna (komunikat premium), to wyjdź
+
+    const resourceBuildings = ['wood', 'stone', 'iron'];
+
     const premiumBlock = document.querySelector('.premium_account_hint');
     if (premiumBlock) {
         console.log('⛔ Kolejka budowy pełna. Skrypt wstrzymany.');
         return;
     }
 
-    // 🪵 Surowce dostępne:
     const res = {
         wood: parseInt(document.getElementById('wood').textContent.replace(/\D/g, '')),
         stone: parseInt(document.getElementById('stone').textContent.replace(/\D/g, '')),
         iron: parseInt(document.getElementById('iron').textContent.replace(/\D/g, ''))
     };
 
-    const rows = document.querySelectorAll("tr[id^='main_buildrow_']");
+    const rows = [...document.querySelectorAll("tr[id^='main_buildrow_']")];
 
-    for (const row of rows) {
-        const buildingId = row.id.replace("main_buildrow_", "");
-        const targetLevel = targetLevels[buildingId];
+    function tryUpgrade(buildingIds) {
+        for (const row of rows) {
+            const buildingId = row.id.replace("main_buildrow_", "");
+            if (!buildingIds.includes(buildingId)) continue;
 
-        if (typeof targetLevel !== "number") continue;
+            const targetLevel = targetLevels[buildingId];
+            if (typeof targetLevel !== "number") continue;
 
-        const levelSpan = row.querySelector("span");
-        const currentLevel = levelSpan ? parseInt(levelSpan.textContent.replace(/\D/g, "")) : null;
+            const levelSpan = row.querySelector("span");
+            const currentLevel = levelSpan ? parseInt(levelSpan.textContent.replace(/\D/g, "")) : null;
 
-        if (currentLevel === null || currentLevel >= targetLevel) continue;
+            if (currentLevel === null || currentLevel >= targetLevel) continue;
 
-        const woodCost = parseInt(row.querySelector('.cost_wood')?.dataset.cost || "0");
-        const stoneCost = parseInt(row.querySelector('.cost_stone')?.dataset.cost || "0");
-        const ironCost = parseInt(row.querySelector('.cost_iron')?.dataset.cost || "0");
+            const woodCost = parseInt(row.querySelector('.cost_wood')?.dataset.cost || "0");
+            const stoneCost = parseInt(row.querySelector('.cost_stone')?.dataset.cost || "0");
+            const ironCost = parseInt(row.querySelector('.cost_iron')?.dataset.cost || "0");
 
-        const canAfford = res.wood >= woodCost && res.stone >= stoneCost && res.iron >= ironCost;
+            const canAfford = res.wood >= woodCost && res.stone >= stoneCost && res.iron >= ironCost;
 
-        if (canAfford) {
-            const upgradeBtn = row.querySelector("a.btn-build");
-            if (upgradeBtn) {
-                console.log(`🛠️ Ulepszam ${buildingId} (${currentLevel} → ${currentLevel + 1}) — koszt: ${woodCost}/${stoneCost}/${ironCost}`);
-                window.location.href = upgradeBtn.href;
-                break; // tylko jedno ulepszenie
+            if (canAfford) {
+                const upgradeBtn = row.querySelector("a.btn-build");
+                if (upgradeBtn) {
+                    console.log(`🛠️ Ulepszam ${buildingId} (${currentLevel} → ${currentLevel + 1}) — koszt: ${woodCost}/${stoneCost}/${ironCost}`);
+                    window.location.href = upgradeBtn.href;
+                    return true; // przerwij po jednym ulepszeniu
+                }
+            } else {
+                console.log(`💰 Brakuje zasobów na ${buildingId} — potrzeba: ${woodCost}/${stoneCost}/${ironCost}`);
             }
-        } else {
-            console.log(`💰 Brakuje zasobów na ${buildingId} — potrzeba: ${woodCost}/${stoneCost}/${ironCost}`);
         }
+        return false;
     }
+
+    // 🔁 Najpierw próbuj ulepszyć surowcowe
+    if (tryUpgrade(resourceBuildings)) return;
+
+    // 🏗️ Potem pozostałe
+    const otherBuildings = Object.keys(targetLevels).filter(key => !resourceBuildings.includes(key));
+    tryUpgrade(otherBuildings);
 })();
