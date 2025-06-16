@@ -12,12 +12,13 @@
     'use strict';
 
     // ✅ Ustaw docelowe poziomy budynków tutaj:
+    // jak nie chcesz jakiegoś budynku to po prostu go odkomentuj
     const targetLevels = {
         main: 20,
         barracks: 25,
         stable: 20,
         garage: 5,
-        watchtower: 0,
+        //watchtower: 0,
         smith: 20,
         place: 1,
         statue: 1,
